@@ -1,0 +1,7 @@
+[0m[[0m[31merror[0m] [0m[0m/home/ubuntu/OpenRankPregel/src/main/scala/OpenRankAlgoPregel.scala:63:23: type mismatch;[0m
+[0m[[0m[31merror[0m] [0m[0m found   : Double[0m
+[0m[[0m[31merror[0m] [0m[0m required: org.apache.spark.rdd.RDD[(org.apache.spark.graphx.VertexId, ?)][0m
+[0m[[0m[31merror[0m] [0m[0m    (which expands to)  org.apache.spark.rdd.RDD[(Long, ?)][0m
+[0m[[0m[31merror[0m] [0m[0m    val graph = Graph(initialPageRank, undirectedEdges).cache()[0m
+[0m[[0m[31merror[0m] [0m[0m                      ^[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m
