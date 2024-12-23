@@ -88,7 +88,7 @@ GraphX提供了丰富的图计算API，如Pregel API和Graph API，可以轻松�
 - Random Vertex Cut 和 Edge Partition 1D 的总时间相同（233秒），这表明在不同的分区策略下，初始化和迭代时间的权衡可能导致相似的总时间。
 - Edge Partition 2D 的总时间最长（235.25秒），尽管其迭代时间最短，但初始化时间的增加抵消了迭代时间的优势。
 
-### **4.2 GraphX **Pregel Api 实现与 RDD 手动实现对比
+### 4.2 GraphX Pregel Api 实现与 RDD 手动实现对比
 
 上表为基于不同实现方式的**单次**迭代时间以及总时间对比，GraphX为4种图分割方式各运行4次，取全局平均值；NaiveRDD为2次运行的均值，单位为秒。
 
