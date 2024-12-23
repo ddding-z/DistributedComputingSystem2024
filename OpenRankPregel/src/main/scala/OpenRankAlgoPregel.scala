@@ -48,6 +48,7 @@ object WeightedPageRankPregel {
       .map { case ((repoA, repoB), weight) =>
         Edge(repoA, repoB, weight)
       }
+      .repartition(6)
 
     val undirectedEdges: RDD[Edge[Double]] = weightedEdges.flatMap { edge =>
       Seq(
@@ -61,7 +62,7 @@ object WeightedPageRankPregel {
 
     val initialVertices: RDD[(VertexId, VertexAttr)] = repoVertices.map { case (id, name) =>
       (id, VertexAttr(initialPageRank, 0.0))
-    }
+    }.repartition(6)
 
     var graph: Graph[VertexAttr, Double] = Graph(initialVertices, undirectedEdges).cache()
 
@@ -83,7 +84,7 @@ object WeightedPageRankPregel {
     val maxIterations = 20
 
     val teleport = (1.0 - dampingFactor) / numNodes
-
+    
     val sumWeights: VertexRDD[Double] = graph.aggregateMessages[Double](
       triplet => {
         triplet.sendToSrc(triplet.attr)
@@ -100,7 +101,11 @@ object WeightedPageRankPregel {
       maxIterations = maxIterations,
       activeDirection = EdgeDirection.Out
     )(
-      (id, attr, msgSum) => attr.copy(pageRank = teleport + dampingFactor * msgSum),
+      (id, attr, msgSum) => {
+        val newPageRank = teleport + dampingFactor * msgSum
+        attr.copy(pageRank = newPageRank)
+      },
+
       triplet => {
         val srcSumWeights = triplet.srcAttr.sumWeights
         if (srcSumWeights > 0) {
@@ -110,20 +115,16 @@ object WeightedPageRankPregel {
           Iterator.empty
         }
       },
+
       (a, b) => a + b
     ).cache()
 
     val ranks: RDD[(VertexId, Double)] = pageRankGraph.vertices.map { case (id, attr) =>
       (id, attr.pageRank)
     }
-
     val repoNamesWithRanks: RDD[(String, Double)] = repoVertices.join(ranks).map {
       case (repoId, (repoName, rank)) => (repoName, rank)
     }
-
-    val top10 = repoNamesWithRanks.sortBy(_._2, ascending = false).take(10)
-    println("Top 10 Repositories by PageRank (Pregel):")
-    top10.foreach { case (name, rank) => println(s"$name: $rank") }
 
     import spark.implicits._
 
@@ -138,3 +139,4 @@ object WeightedPageRankPregel {
     spark.stop()
   }
 }
+
