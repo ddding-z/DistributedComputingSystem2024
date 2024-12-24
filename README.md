@@ -98,7 +98,7 @@ GraphX提供了丰富的图计算API，如Pregel API和Graph API，可以轻松�
 
 ### 4.2 GraphX Pregel Api 实现与 RDD 手动实现对比
 
-上表为基于不同实现方式的**单次**迭代时间以及总时间对比，GraphX为4种图分割方式各运行4次，取全局平均值；NaiveRDD为2次运行的均值，单位为秒。
+下表为基于不同实现方式的**单次**迭代时间以及总时间对比，GraphX为4种图分割方式各运行4次，取全局平均值；NaiveRDD为2次运行的均值，单位为秒。
 
 ![image.png](./README.assets/image1.png)
 
