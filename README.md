@@ -60,48 +60,7 @@ GraphX提供了丰富的图计算API，如Pregel API和Graph API，可以轻松�
 
 算法分为建图和WPR计算两部分，具体伪代码如下所示：
 
-```pseudocode
-# Step 1: 构建二部图
-Input: 全域行为事件数据 RDD[event(开发者, 项目, 类型)]
-Output: GraphX 的初始图 G
-
-RDD[Edge[开发者, 项目, 类型]] = 全域行为事件数据.map(event => (event.开发者, event.项目, event.类型))
-Graph G = Graph(vertices = V_dev + V_proj, edges = EdgeRDD)
-
-# Step 2: 关系类型降维
-RDD[Edge[开发者, 项目, 权重]] = RDD[Edge[开发者, 项目, 类型]]
-    .groupBy((开发者, 项目))
-    .map((开发者, 项目, 类型集合) => (开发者, 项目, Active(开发者, 项目, 类型集合)))
-
-降维后的图 G_1 = Graph(vertices = V_dev + V_proj, edges = RDD[Edge[开发者, 项目, 权重]])
-
-# Step 3: 节点类型降维 (构建同质网络)
-RDD[Edge[项目1, 项目2, 关联度]] = G_1.triplets
-    .filter(triplet => triplet.srcAttr == 开发者 && triplet.dstAttr == 项目)
-    .groupBy((项目1, 项目2))
-    .map((项目1, 项目2, 开发者集合) => {
-        关联度 Rab = Σdev(2 * Active(dev, 项目1) * Active(dev, 项目2)) / (Active(dev, 项目1) + Active(dev, 项目2))
-        return (项目1, 项目2, Rab)
-    })
-
-同质图 G_proj = Graph(vertices = V_proj, edges = RDD[Edge[项目1, 项目2, 关联度]])
-
-# Step 4: WPR计算
-Initialize scores = G_proj.vertices.map(vertex => (vertex, 1.0 / G_proj.numVertices))
-For i = 1 to max_iterations:
-    ranks = G_proj.aggregateMessages(
-        sendMsg = edge => {
-            edge.dstAttr += damping_factor * edge.attr * edge.srcAttr / edge.srcDegree
-        },
-        mergeMsg = (msg1, msg2) => msg1 + msg2
-    )
-    scores = ranks.map((proj, rank) => (proj, (1 - damping_factor) / G_proj.numVertices + rank))
-    If scores.converged():
-        Break
-End For
-
-Return scores
-```
+![PixPin_2024-12-24_09-57-49](./README.assets/PixPin_2024-12-24_09-57-49.jpg)
 
 ---
 
